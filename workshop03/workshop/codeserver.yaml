@@ -1,0 +1,106 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: codesvr-pvc
+  namespace: codesvr-ns
+  labels:
+    app: codesvr
+    name: codesvr-pvc
+spec:
+  storageClassName: do-block-storage
+  accessModes: 
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: apps/v1 
+kind: Deployment 
+metadata:
+  name: codesvr-deploy
+  namespace: codesvr-ns
+  labels:
+    app: codesvr
+    name: codesvr-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codesvr
+      name: codesvr-po
+  template:
+    metadata:
+      name: codesvr-po
+      labels:
+        app: codesvr
+        name: codesvr-po
+    spec: 
+      volumes: 
+      - name: codesvr-vol
+        persistentVolumeClaim:
+          claimName: codesvr-pvc
+      containers:
+      - name: codesvr-container 
+        image: linuxserver/code-server:amd64-latest
+        imagePullPolicy: IfNotPresent
+        resources: 
+          requests: 
+            memory: "256Mi"
+            cpu: "200m"          
+          limits: 
+            memory: "256Mi"
+            cpu: "200m"
+        envFrom:
+        - configMapRef:
+            name: codesvr-cm
+        - secretRef:
+            name: codesvr-secret
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - name: codesvr-vol
+          mountPath: /config/workspace 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: codesvr-svc
+  namespace: codesvr-ns
+  labels:
+    app: codesvr
+    name: codesvr-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: codesvr
+    name: codesvr-po
+  ports:
+  - port: 8443
+    targetPort: 8443
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: codesvr-ing
+  namespace: codesvr-ns
+  labels:
+    app: codesvr
+    name: codesvr-ing
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: code-159.89.211.115.nip.io
+    http:
+      paths:
+      - path: / 
+        pathType: Prefix
+        backend:
+          service:
+            name: codesvr-svc
+            port:
+              number: 8443

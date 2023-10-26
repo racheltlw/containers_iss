@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: codesvr-ns
+  labels: 
+    app: codesvr
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: codesvr-cm
+  namespace: codesvr-ns
+  labels:
+    app: codesvr
+data:
+  TZ: Asia/Singapore
+  DEFAULT_WORKSPACE: /config/workspace
+  PROXY_DOMAIN: code-159.89.211.115.nip.io
+  
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: codesvr-secret
+  namespace: codesvr-ns
+  labels:
+    app: codesvr
+type: Opaque
+data:
+  PASSWORD: cGFzc3dvcmQ=
+  SUDO_PASSWORD: cGFzc3dvcmQ=
+
+
+
