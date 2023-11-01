@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minions
+  labels: 
+    app: minio
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secret
+  namespace: minions
+  labels:
+    app: minio
+type: Opaque
+data:
+  MINIO_ROOT_USER: cGFzc3dvcmQ=
+  MINIO_ROOT_PASSWORD: cGFzc3dvcmQ=
+
+

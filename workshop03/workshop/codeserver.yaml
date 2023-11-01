@@ -62,7 +62,7 @@ spec:
         - containerPort: 8443
         volumeMounts:
         - name: codesvr-vol
-          mountPath: /config/workspace 
+          mountPath: /config/workspace
 
 ---
 apiVersion: v1
